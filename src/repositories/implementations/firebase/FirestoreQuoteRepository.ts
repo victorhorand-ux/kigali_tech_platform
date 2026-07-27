@@ -73,7 +73,9 @@ export class FirestoreQuoteRepository implements IQuoteRepository {
     }
 
     const snapshot = await query.get();
-    const data = snapshot.docs.map(doc => this.mapToEntity(doc));
+    
+    // FIX: Added explicit type to 'doc'
+    const data = snapshot.docs.map((doc: FirebaseFirestore.DocumentSnapshot) => this.mapToEntity(doc));
 
     let hasMore = false;
     let nextCursor = undefined;
@@ -120,7 +122,8 @@ export class FirestoreQuoteRepository implements IQuoteRepository {
       .orderBy('createdAt', 'desc')
       .get();
       
-    return snapshot.docs.map(doc => this.mapToEntity(doc));
+    // FIX: Added explicit type to 'doc'
+    return snapshot.docs.map((doc: FirebaseFirestore.DocumentSnapshot) => this.mapToEntity(doc));
   }
 
   async findByCustomerPhone(tenantId: string, phone: string): Promise<QuoteEntity[]> {
@@ -130,7 +133,8 @@ export class FirestoreQuoteRepository implements IQuoteRepository {
       .orderBy('createdAt', 'desc')
       .get();
       
-    return snapshot.docs.map(doc => this.mapToEntity(doc));
+    // FIX: Added explicit type to 'doc'
+    return snapshot.docs.map((doc: FirebaseFirestore.DocumentSnapshot) => this.mapToEntity(doc));
   }
 
   async assignTechnician(quoteId: string, technicianId: string): Promise<QuoteEntity> {

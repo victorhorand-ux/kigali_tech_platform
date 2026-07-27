@@ -20,31 +20,48 @@ export function QuoteRequestForm() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CreateQuoteDTO>({
+  } = useForm({ // <-- Fix: Removed <CreateQuoteDTO> generic here
     resolver: zodResolver(CreateQuoteSchema),
+    // Define all defaults to prevent React uncontrolled/controlled warnings
     defaultValues: {
+      customerName: "",
+      customerPhone: "",
+      serviceRequested: "",
       urgency: "medium",
+      location: {
+        district: "",
+        sector: "",
+      },
+      notes: "",
     },
   });
 
   const onSubmit = (data: CreateQuoteDTO) => {
     setServerState({ type: "idle", message: "" });
 
-    startTransition(async () => {
-      const response = await submitQuoteAction(data);
-
-      if (response.success) {
-        setServerState({
-          type: "success",
-          message: response.message || "Request submitted successfully.",
+    // Fix: Use .then() instead of async/await to satisfy React's TransitionFunction types
+    startTransition(() => {
+      submitQuoteAction(data)
+        .then((response) => {
+          if (response.success) {
+            setServerState({
+              type: "success",
+              message: response.message || "Request submitted successfully.",
+            });
+            reset(); // Clear the form on success
+          } else {
+            setServerState({
+              type: "error",
+              message: response.error,
+            });
+          }
+        })
+        .catch(() => {
+          setServerState({
+            type: "error",
+            message: "A network error occurred. Please try again.",
+          });
         });
-        reset(); // Clear the form on success
-      } else {
-        setServerState({
-          type: "error",
-          message: response.error,
-        });
-      }
     });
   };
 
@@ -75,7 +92,7 @@ export function QuoteRequestForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {/* Customer Name */}
           <div className="space-y-1">
@@ -85,8 +102,9 @@ export function QuoteRequestForm() {
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#0B1B3D] focus:outline-none focus:ring-1 focus:ring-[#0B1B3D]"
               placeholder="e.g. Jean Claude"
             />
-            {errors.customerName && (
-              <p className="text-xs text-red-500">{errors.customerName.message}</p>
+            {/* Fix: Safely access message using optional chaining */}
+            {errors.customerName?.message && (
+              <p className="text-xs text-red-500">{errors.customerName.message as string}</p>
             )}
           </div>
 
@@ -98,8 +116,8 @@ export function QuoteRequestForm() {
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#0B1B3D] focus:outline-none focus:ring-1 focus:ring-[#0B1B3D]"
               placeholder="078..."
             />
-            {errors.customerPhone && (
-              <p className="text-xs text-red-500">{errors.customerPhone.message}</p>
+            {errors.customerPhone?.message && (
+              <p className="text-xs text-red-500">{errors.customerPhone.message as string}</p>
             )}
           </div>
         </div>
@@ -117,8 +135,8 @@ export function QuoteRequestForm() {
             <option value="Smart Home Setup">Smart Home Setup</option>
             <option value="Network/WiFi Setup">Network/WiFi Setup</option>
           </select>
-          {errors.serviceRequested && (
-            <p className="text-xs text-red-500">{errors.serviceRequested.message}</p>
+          {errors.serviceRequested?.message && (
+            <p className="text-xs text-red-500">{errors.serviceRequested.message as string}</p>
           )}
         </div>
 
@@ -135,8 +153,9 @@ export function QuoteRequestForm() {
               <option value="Kicukiro">Kicukiro</option>
               <option value="Nyarugenge">Nyarugenge</option>
             </select>
-            {errors.location?.district && (
-              <p className="text-xs text-red-500">{errors.location.district.message}</p>
+            {/* Fix: Nested optional chaining to prevent crash if location is undefined */}
+            {(errors.location as any)?.district?.message && (
+              <p className="text-xs text-red-500">{(errors.location as any).district.message}</p>
             )}
           </div>
 
@@ -148,8 +167,8 @@ export function QuoteRequestForm() {
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#0B1B3D] focus:outline-none focus:ring-1 focus:ring-[#0B1B3D]"
               placeholder="e.g. Kimironko"
             />
-            {errors.location?.sector && (
-              <p className="text-xs text-red-500">{errors.location.sector.message}</p>
+            {(errors.location as any)?.sector?.message && (
+              <p className="text-xs text-red-500">{(errors.location as any).sector.message}</p>
             )}
           </div>
         </div>
