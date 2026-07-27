@@ -1,13 +1,11 @@
-// scripts/seedProducts.ts
+// scripts/seed.ts
+import { loadEnvConfig } from '@next/env';
+loadEnvConfig(process.cwd()); // Force load .env.local
+
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
 
-// Load environment variables
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
-
-// 1. Initialize Firebase Admin (Modern Modular Syntax)
+// 1. Initialize Firebase Admin
 if (getApps().length === 0) {
   initializeApp({
     credential: cert({
@@ -21,89 +19,94 @@ if (getApps().length === 0) {
 const db = getFirestore();
 const DEFAULT_TENANT_ID = 'rw-hq-main';
 
-const productsToSeed = [
+const servicesToSeed = [
   {
     tenantId: DEFAULT_TENANT_ID,
-    name: "Samsung 65\" Crystal 4K UHD Smart TV",
-    slug: "samsung-65-crystal-4k-uhd",
-    sku: "SAM-65-CU8000",
-    brand: "Samsung",
-    category: "tvs",
-    basePriceRWF: 950000,
-    salePriceRWF: 890000,
-    inventoryCount: 12,
-    isAvailable: true,
-    images: ["https://placehold.co/600x400/png?text=Samsung+65+Inch+TV"],
-    shortDescription: "Immersive 4K UHD resolution with Crystal Processor 4K and ultra-thin profile.",
-    longDescription: "Transform your living room into a cinema with the Samsung 65\" Crystal 4K UHD TV. Featuring Dynamic Crystal Color for lifelike images, a sleek AirSlim design, and built-in Smart Hub for all your streaming apps.",
-    specifications: [
-      { name: "Screen Size", value: "65 Inches" },
-      { name: "Resolution", value: "4K Ultra HD (3840 x 2160)" },
-      { name: "Smart OS", value: "Tizen" },
-      { name: "HDMI Ports", value: "3" }
+    title: "CCTV Installation & Configuration",
+    slug: "cctv-installation",
+    shortDescription: "Professional security camera mounting, wiring, and mobile app setup for your property.",
+    longDescription: "Protect your home or business with our expert CCTV installation services. Our certified technicians handle everything from optimal camera placement and secure wiring to DVR/NVR configuration and setting up mobile access so you can monitor your property from anywhere.",
+    coverImageUrl: "https://placehold.co/600x400/png?text=CCTV+Installation",
+    basePriceRWF: 50000,
+    isActive: true,
+    features: [
+      "Site security assessment & camera placement",
+      "Professional mounting and concealed wiring",
+      "DVR/NVR system configuration",
+      "Mobile app setup for remote viewing",
+      "Post-installation training"
     ],
-    warrantyMonths: 24,
-    hasInstallationOption: true,
-    installationFeeRWF: 25000,
+    faqs: [
+      { 
+        question: "How long does a standard installation take?", 
+        answer: "A standard 4-camera setup typically takes between 4 to 6 hours depending on the complexity of the wiring and property layout." 
+      },
+      { 
+        question: "Do you provide the cameras or just the installation?", 
+        answer: "We offer both! You can purchase a complete CCTV kit from our shop, or hire us to install equipment you have already purchased." 
+      }
+    ],
     seoMeta: {
-      title: "Samsung 65\" 4K Smart TV | Buy in Kigali",
-      description: "Buy the Samsung 65 inch Crystal 4K UHD Smart TV in Rwanda. Features Tizen OS, slim design, and optional wall mounting.",
-      keywords: ["Samsung TV Kigali", "Buy TV Rwanda", "65 inch TV Kigali"]
+      title: "CCTV Installation Services | Kigali Tech",
+      description: "Professional CCTV and security camera installation services in Kigali, Rwanda.",
+      keywords: ["CCTV installation Kigali", "Security cameras Rwanda", "Tech installation"]
     },
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   },
   {
     tenantId: DEFAULT_TENANT_ID,
-    name: "Hikvision 4-Camera 5MP ColorVu CCTV Kit",
-    slug: "hikvision-4-camera-5mp-colorvu-kit",
-    sku: "HIK-5MP-KIT-4",
-    brand: "Hikvision",
-    category: "cctv-cameras",
-    basePriceRWF: 280000,
-    inventoryCount: 8,
-    isAvailable: true,
-    images: ["https://placehold.co/600x400/png?text=Hikvision+CCTV+Kit"],
-    shortDescription: "Complete 4-camera security system featuring 24/7 color night vision.",
-    longDescription: "Secure your premises with the Hikvision 5MP ColorVu kit. This complete bundle includes 4 high-definition cameras that capture full-color video even in total darkness, a 4-channel DVR, and a 1TB surveillance hard drive.",
-    specifications: [
-      { name: "Resolution", value: "5 Megapixels" },
-      { name: "Night Vision", value: "ColorVu (24/7 Color)" },
-      { name: "Storage", value: "1TB HDD Included" },
-      { name: "Remote Viewing", value: "Hik-Connect App" }
+    title: "Smart TV Wall Mounting",
+    slug: "smart-tv-mounting",
+    shortDescription: "Secure wall mounting and cable management for all TV sizes.",
+    longDescription: "Maximize your living space and enhance your viewing experience with our professional TV wall mounting service. We ensure your television is perfectly leveled, securely anchored to the correct wall type, and that all messy cables are neatly managed.",
+    coverImageUrl: "https://placehold.co/600x400/png?text=TV+Mounting",
+    basePriceRWF: 25000,
+    isActive: true,
+    features: [
+      "Secure bracket installation",
+      "Perfect leveling and positioning",
+      "Basic cable management",
+      "Smart TV internet connection setup"
     ],
-    warrantyMonths: 12,
-    hasInstallationOption: true,
-    installationFeeRWF: 80000,
+    faqs: [
+      { 
+        question: "Do I need to buy the wall bracket separately?", 
+        answer: "We recommend purchasing a bracket that fits your specific TV size, but we can also supply standard tilting or full-motion brackets upon request." 
+      }
+    ],
     seoMeta: {
-      title: "Hikvision 5MP ColorVu CCTV Kit | Security Kigali",
-      description: "Complete Hikvision 4-camera ColorVu security system. Get 24/7 color night vision for your home or business in Kigali.",
-      keywords: ["Hikvision Kigali", "CCTV Kit Rwanda", "Security Cameras Kigali"]
+      title: "TV Wall Mounting Services | Kigali Tech",
+      description: "Safe and secure Smart TV wall mounting and setup in Kigali.",
+      keywords: ["TV mounting Kigali", "Smart TV setup", "Home theater installation"]
     },
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   }
 ];
 
-async function seedDatabase() {
-  console.log("🛒 Starting Products seed...");
+async function seedServices() {
+  console.log("🛠️ Starting Services seed...");
   const batch = db.batch();
 
-  for (const product of productsToSeed) {
-    const existing = await db.collection('products').where('slug', '==', product.slug).limit(1).get();
+  for (const service of servicesToSeed) {
+    const existing = await db.collection('services').where('slug', '==', service.slug).limit(1).get();
 
     if (existing.empty) {
-      const newRef = db.collection('products').doc();
-      batch.set(newRef, product);
-      console.log(`✅ Queued Product: ${product.name}`);
+      const newRef = db.collection('services').doc();
+      batch.set(newRef, service);
+      console.log(`✅ Queued Service: ${service.title}`);
     } else {
-      console.log(`⚠️ Skipped Product: ${product.name} (Already exists)`);
+      console.log(`⚠️ Skipped Service: ${service.title} (Already exists)`);
     }
   }
 
   await batch.commit();
-  console.log("🎉 Products Seed complete!");
+  console.log("🎉 Services Seed complete!");
   process.exit(0);
 }
 
-seedDatabase().catch(console.error);
+seedServices().catch((error) => {
+  console.error("🚨 Error seeding services:", error);
+  process.exit(1);
+});

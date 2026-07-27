@@ -1,27 +1,36 @@
 // src/app/(public)/shop/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ShoppingCart, ShieldCheck, Wrench, CheckCircle, AlertCircle } from "lucide-react";
+import { ShieldCheck, Wrench, CheckCircle, AlertCircle } from "lucide-react";
 import { FirestoreProductRepository } from "@/repositories/implementations/firebase/FirestoreProductRepository";
+import { QuoteRequestForm } from "@/domains/quotes/components/QuoteRequestForm";
 
 const DEFAULT_TENANT_ID = 'rw-hq-main';
 
+// FIX: Explicitly type params as a Promise
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
 // 1. DYNAMIC SEO METADATA GENERATOR
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  // FIX: Await the params Promise
+  const { slug } = await params;
+  
   const repository = new FirestoreProductRepository();
-  const product = await repository.findBySlug(DEFAULT_TENANT_ID, params.slug);
+  const product = await repository.findBySlug(DEFAULT_TENANT_ID, slug);
 
   if (!product) {
     return { title: "Product Not Found" };
   }
 
   return {
-    title: product.seoMeta.title,
-    description: product.seoMeta.description,
-    keywords: product.seoMeta.keywords,
+    title: product.seoMeta?.title || product.name,
+    description: product.seoMeta?.description || product.shortDescription,
+    keywords: product.seoMeta?.keywords || [],
     openGraph: {
-      title: product.seoMeta.title,
-      description: product.seoMeta.description,
+      title: product.seoMeta?.title || product.name,
+      description: product.seoMeta?.description || product.shortDescription,
       type: "website",
       images: product.images.length > 0 ? [{ url: product.images[0] }] : [],
     },
@@ -29,9 +38,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 // 2. SERVER COMPONENT RENDERER
-export default async function ProductDetailsPage({ params }: { params: { slug: string } }) {
+export default async function ProductDetailsPage({ params }: Props) {
+  // FIX: Await the params Promise
+  const { slug } = await params;
+  
   const repository = new FirestoreProductRepository();
-  const product = await repository.findBySlug(DEFAULT_TENANT_ID, params.slug);
+  const product = await repository.findBySlug(DEFAULT_TENANT_ID, slug);
 
   if (!product) {
     notFound();
@@ -61,7 +73,6 @@ export default async function ProductDetailsPage({ params }: { params: { slug: s
               )}
             </div>
             
-            {/* Thumbnail grid would go here if product.images.length > 1 */}
             {product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-4">
                 {product.images.slice(1).map((img, idx) => (
@@ -128,15 +139,16 @@ export default async function ProductDetailsPage({ params }: { params: { slug: s
               </div>
             </div>
 
-            {/* Add to Cart Placeholder */}
+            {/* Replaced Add to Cart with the Lead Gen Form */}
             <div className="mt-auto border-t border-gray-100 pt-8">
-              <button 
-                disabled={!product.isAvailable}
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#0B1B3D] px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-blue-900 disabled:opacity-50 disabled:hover:bg-[#0B1B3D]"
-              >
-                <ShoppingCart className="h-6 w-6" />
-                {product.isAvailable ? "Add to Cart" : "Out of Stock"}
-              </button>
+               <h3 className="mb-4 text-xl font-bold text-gray-900">Inquire About This Product</h3>
+               {product.isAvailable ? (
+                 <QuoteRequestForm />
+               ) : (
+                 <div className="rounded-xl bg-gray-50 p-6 text-center border border-gray-200">
+                   <p className="text-gray-600">This product is currently out of stock. Please check back later.</p>
+                 </div>
+               )}
             </div>
           </div>
         </div>
@@ -179,7 +191,7 @@ export default async function ProductDetailsPage({ params }: { params: { slug: s
             <h2 className="mb-6 text-2xl font-bold text-gray-900">Specifications</h2>
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
               <dl className="divide-y divide-gray-100">
-                {product.specifications.map((spec, idx) => (
+                {product.specifications.map((spec: { name: string; value: string }, idx: number) => (
                   <div key={idx} className="grid grid-cols-2 px-6 py-4 hover:bg-gray-50">
                     <dt className="text-sm font-medium text-gray-500">{spec.name}</dt>
                     <dd className="text-sm font-medium text-gray-900 text-right">{spec.value}</dd>

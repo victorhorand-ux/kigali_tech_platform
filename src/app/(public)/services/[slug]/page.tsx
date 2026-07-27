@@ -2,15 +2,23 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CheckCircle, HelpCircle } from "lucide-react";
-import { FirestoreServiceRepository } from "@/repositories/implementations/implementations/firebase/FirestoreServiceRepository";
+import { FirestoreServiceRepository } from "@/repositories/implementations/FirestoreServiceRepository";
 import { QuoteRequestForm } from "@/domains/quotes/components/QuoteRequestForm";
 
 const DEFAULT_TENANT_ID = 'rw-hq-main';
 
+// FIX: Explicitly type params as a Promise
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
 // 1. DYNAMIC SEO METADATA GENERATOR
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  // FIX: Await the params Promise
+  const { slug } = await params;
+  
   const repository = new FirestoreServiceRepository();
-  const service = await repository.findBySlug(DEFAULT_TENANT_ID, params.slug);
+  const service = await repository.findBySlug(DEFAULT_TENANT_ID, slug);
 
   if (!service) {
     return { title: "Service Not Found" };
@@ -29,9 +37,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 // 2. SERVER COMPONENT RENDERER
-export default async function ServiceDetailsPage({ params }: { params: { slug: string } }) {
+export default async function ServiceDetailsPage({ params }: Props) {
+  // FIX: Await the params Promise
+  const { slug } = await params;
+  
   const repository = new FirestoreServiceRepository();
-  const service = await repository.findBySlug(DEFAULT_TENANT_ID, params.slug);
+  const service = await repository.findBySlug(DEFAULT_TENANT_ID, slug);
 
   // Automatically trigger a 404 page if the slug isn't in Firestore
   if (!service || !service.isActive) {
@@ -79,7 +90,6 @@ export default async function ServiceDetailsPage({ params }: { params: { slug: s
               <div>
                 <h3 className="mb-6 text-xl font-bold text-gray-900">What's Included</h3>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* FIX: Added explicit types for feature and idx */}
                   {service.features.map((feature: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-3">
                       <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#10B981]" />
@@ -98,7 +108,6 @@ export default async function ServiceDetailsPage({ params }: { params: { slug: s
                   Frequently Asked Questions
                 </h3>
                 <div className="space-y-6">
-                  {/* FIX: Added explicit types for faq and idx */}
                   {service.faqs.map((faq: { question: string; answer: string }, idx: number) => (
                     <div key={idx} className="rounded-lg bg-gray-50 p-6 border border-gray-100">
                       <h4 className="font-bold text-gray-900 mb-2">{faq.question}</h4>

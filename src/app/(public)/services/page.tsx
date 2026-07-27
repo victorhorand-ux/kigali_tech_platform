@@ -2,7 +2,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Wrench } from "lucide-react";
-import { FirestoreServiceRepository } from "@/repositories/implementations/implementations/firebase/FirestoreServiceRepository";
+// FIX 1: Corrected the duplicate 'implementations' in the import path
+import { FirestoreServiceRepository } from "@/repositories/implementations/FirestoreServiceRepository"; 
+
+// FIX 2: Prevent Next.js from caching the empty state
+export const dynamic = 'force-dynamic';
 
 const DEFAULT_TENANT_ID = 'rw-hq-main';
 
@@ -57,7 +61,6 @@ export default async function ServicesIndexPage() {
                   </p>
                   
                   <div className="mt-auto flex items-center justify-between border-t border-gray-100 pt-4">
-                    {/* FIX: Safely check if basePriceRWF exists before formatting */}
                     <span className="font-semibold text-gray-900">
                       {service.basePriceRWF 
                         ? `From RWF ${service.basePriceRWF.toLocaleString()}`
