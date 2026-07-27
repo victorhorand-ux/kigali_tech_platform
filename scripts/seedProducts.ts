@@ -1,13 +1,13 @@
 // scripts/seedProducts.ts
-const admin = require('firebase-admin');
-import * as dotenv from 'dotenv';
-import * as path from 'path';
+import { loadEnvConfig } from '@next/env';
+loadEnvConfig(process.cwd());
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
+// 1. Initialize Firebase Admin (Modern Modular Syntax)
+if (getApps().length === 0) {
+  initializeApp({
+    credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
@@ -15,7 +15,7 @@ if (!admin.apps.length) {
   });
 }
 
-const db = admin.firestore();
+const db = getFirestore();
 const DEFAULT_TENANT_ID = 'rw-hq-main';
 
 const productsToSeed = [
@@ -47,8 +47,8 @@ const productsToSeed = [
       description: "Buy the Samsung 65 inch Crystal 4K UHD Smart TV in Rwanda. Features Tizen OS, slim design, and optional wall mounting.",
       keywords: ["Samsung TV Kigali", "Buy TV Rwanda", "65 inch TV Kigali"]
     },
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   },
   {
     tenantId: DEFAULT_TENANT_ID,
@@ -77,8 +77,8 @@ const productsToSeed = [
       description: "Complete Hikvision 4-camera ColorVu security system. Get 24/7 color night vision for your home or business in Kigali.",
       keywords: ["Hikvision Kigali", "CCTV Kit Rwanda", "Security Cameras Kigali"]
     },
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   }
 ];
 

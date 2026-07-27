@@ -1,10 +1,11 @@
 // src/infrastructure/firebase/admin.ts
-import * as admin from 'firebase-admin';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
-if (!admin.apps.length) {
+if (getApps().length === 0) {
   try {
-    admin.initializeApp({
-      credential: admin.credential.cert({
+    initializeApp({
+      credential: cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
         // Replace escaped newlines in the private key
@@ -16,4 +17,4 @@ if (!admin.apps.length) {
   }
 }
 
-export const db = admin.firestore();
+export const db = getFirestore();
