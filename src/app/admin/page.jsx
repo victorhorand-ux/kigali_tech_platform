@@ -1,6 +1,8 @@
 import { getQuotesAction } from "@/actions/getQuotes";
 import { Clock, CheckCircle, MapPin, Phone, User } from "lucide-react";
 import { StatusButton } from "./components/StatusButton";
+import { DeleteButton } from "./components/DeleteButton";
+
 // Opt out of static caching so you always see fresh leads
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +36,7 @@ export default async function AdminDashboard() {
                   <th className="px-6 py-4 font-semibold">Location</th>
                   <th className="px-6 py-4 font-semibold">Status</th>
                   <th className="px-6 py-4 font-semibold">Date Received</th>
+                  <th className="px-6 py-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -91,6 +94,9 @@ export default async function AdminDashboard() {
                           hour: '2-digit',
                           minute: '2-digit'
                         })}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <DeleteButton id={quote.id} />
                       </td>
 
                     </tr>
