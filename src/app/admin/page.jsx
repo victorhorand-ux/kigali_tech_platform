@@ -1,6 +1,6 @@
 import { getQuotesAction } from "@/actions/getQuotes";
 import { Clock, CheckCircle, MapPin, Phone, User } from "lucide-react";
-
+import { StatusButton } from "./components/StatusButton";
 // Opt out of static caching so you always see fresh leads
 export const dynamic = 'force-dynamic';
 
@@ -78,16 +78,9 @@ export default async function AdminDashboard() {
                       </td>
 
                       {/* Status Badge */}
+                      {/* Status Badge - Replaced with interactive component */}
                       <td className="px-6 py-4">
-                        {quote.status === "pending" ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
-                            <Clock className="h-3 w-3" /> Pending
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                            <CheckCircle className="h-3 w-3" /> Contacted
-                          </span>
-                        )}
+                        <StatusButton id={quote.id} currentStatus={quote.status} />
                       </td>
 
                       {/* Date */}
