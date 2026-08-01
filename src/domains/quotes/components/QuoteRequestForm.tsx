@@ -3,10 +3,14 @@
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { CreateQuoteSchema, CreateQuoteDTO } from "../schemas/quote.schema";
 import { submitQuoteAction } from "../actions/createQuote";
+
+// Import our newly split components
+import { QuoteSuccessMessage } from "./QuoteSuccessMessage";
+import { QuoteErrorMessage } from "./QuoteErrorMessage";
 
 export function QuoteRequestForm() {
   const [isPending, startTransition] = useTransition();
@@ -20,9 +24,8 @@ export function QuoteRequestForm() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({ // <-- Fix: Removed <CreateQuoteDTO> generic here
+  } = useForm({
     resolver: zodResolver(CreateQuoteSchema),
-    // Define all defaults to prevent React uncontrolled/controlled warnings
     defaultValues: {
       customerName: "",
       customerPhone: "",
@@ -36,10 +39,9 @@ export function QuoteRequestForm() {
     },
   });
 
-  const onSubmit = (data: CreateQuoteDTO) => {
+const onSubmit = (data: CreateQuoteDTO) => {
     setServerState({ type: "idle", message: "" });
 
-    // Fix: Use .then() instead of async/await to satisfy React's TransitionFunction types
     startTransition(() => {
       submitQuoteAction(data)
         .then((response) => {
@@ -52,7 +54,8 @@ export function QuoteRequestForm() {
           } else {
             setServerState({
               type: "error",
-              message: response.error,
+              // FIX: Added a fallback string so it always evaluates to a string
+              message: response.error || "An error occurred while submitting.",
             });
           }
         })
@@ -65,19 +68,13 @@ export function QuoteRequestForm() {
     });
   };
 
+  // Delegate Success UI to the separate component
   if (serverState.type === "success") {
     return (
-      <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center shadow-sm">
-        <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-500" />
-        <h3 className="mb-2 text-xl font-semibold text-gray-900">Quote Request Received</h3>
-        <p className="text-gray-600">{serverState.message}</p>
-        <button
-          onClick={() => setServerState({ type: "idle", message: "" })}
-          className="mt-6 rounded-lg bg-green-600 px-6 py-2 text-white transition-colors hover:bg-green-700"
-        >
-          Submit Another Request
-        </button>
-      </div>
+      <QuoteSuccessMessage 
+        message={serverState.message} 
+        onReset={() => setServerState({ type: "idle", message: "" })} 
+      />
     );
   }
 
@@ -85,11 +82,9 @@ export function QuoteRequestForm() {
     <div className="rounded-xl bg-white p-6 shadow-md border border-gray-100">
       <h2 className="mb-6 text-2xl font-bold text-gray-900">Request a Service Quote</h2>
 
+      {/* Delegate Error UI to the separate component */}
       {serverState.type === "error" && (
-        <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-4 text-red-700">
-          <AlertCircle className="h-5 w-5" />
-          <p>{serverState.message}</p>
-        </div>
+        <QuoteErrorMessage message={serverState.message} />
       )}
 
       <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5">
@@ -102,7 +97,6 @@ export function QuoteRequestForm() {
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-[#0B1B3D] focus:outline-none focus:ring-1 focus:ring-[#0B1B3D]"
               placeholder="e.g. Jean Claude"
             />
-            {/* Fix: Safely access message using optional chaining */}
             {errors.customerName?.message && (
               <p className="text-xs text-red-500">{errors.customerName.message as string}</p>
             )}
@@ -153,7 +147,6 @@ export function QuoteRequestForm() {
               <option value="Kicukiro">Kicukiro</option>
               <option value="Nyarugenge">Nyarugenge</option>
             </select>
-            {/* Fix: Nested optional chaining to prevent crash if location is undefined */}
             {(errors.location as any)?.district?.message && (
               <p className="text-xs text-red-500">{(errors.location as any).district.message}</p>
             )}

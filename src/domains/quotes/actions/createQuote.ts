@@ -1,45 +1,52 @@
-// src/domains/quotes/actions/createQuote.ts
+// src/actions/createQuote.ts
 "use server";
 
-import { CreateQuoteSchema } from '../schemas/quote.schema'; 
-import { QuoteService } from '../services/QuoteService';
-import { FirestoreQuoteRepository } from '@/repositories/implementations/firebase/FirestoreQuoteRepository';
-import { ActionResponse } from '@/types/core';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { CreateQuoteDTO } from "@/domains/quotes/schemas/quote.schema";
 
-// Hardcoded for now. Useful when you scale to multiple franchise locations.
-const DEFAULT_TENANT_ID = 'rw-hq-main'; 
-
-export async function submitQuoteAction(formData: unknown): Promise<ActionResponse<{ leadId: string }>> {
-  try {
-    // 1. Strict Server-Side Validation
-    const validatedData = CreateQuoteSchema.safeParse(formData);
-
-    if (!validatedData.success) {
-      return {
-        success: false,
-        error: "Please check the form for errors.",
-        fieldErrors: validatedData.error.flatten().fieldErrors,
-      };
+// 1. Lazy-load Firebase to prevent top-level crashes
+function getDb() {
+  if (getApps().length === 0) {
+    if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_PRIVATE_KEY) {
+      throw new Error("🚨 Firebase Environment variables are missing!");
     }
 
-    // 2. Manual Dependency Injection (Wiring the layers together)
-    const repository = new FirestoreQuoteRepository();
-    const service = new QuoteService(repository);
+    initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      }),
+    });
+  }
+  return getFirestore();
+}
 
-    // 3. Execute the Use Case
-    const newLead = await service.processNewQuoteRequest(DEFAULT_TENANT_ID, validatedData.data);
+export async function submitQuoteAction(data: CreateQuoteDTO) {
+  try {
+    console.log("📥 Received new quote request on server:", data);
 
-    return {
-      success: true,
-      data: { leadId: newLead.id },
-      message: "Your request has been received. Our technician will contact you shortly."
+    // Initialize DB safely inside the execution context
+    const db = getDb(); 
+
+    // Insert directly into Firestore
+    const docRef = await db.collection('quotes').add({
+      ...data,
+      tenantId: 'rw-hq-main',
+      status: 'pending', 
+      createdAt: FieldValue.serverTimestamp(),
+    });
+
+    return { 
+      success: true, 
+      message: "Our team will contact you shortly on the provided phone number." 
     };
     
-  } catch (error) {
-    console.error("[Quote Submission Error]:", error);
-    return {
-      success: false,
-      error: "An unexpected error occurred while submitting your request. Please try again or contact us via WhatsApp."
+  } catch (error: any) {
+        return { 
+      success: false, 
+      error: "Failed to submit quote to the database. Please try again." 
     };
   }
 }
