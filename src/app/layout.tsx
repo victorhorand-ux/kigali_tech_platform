@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "@/app/globals.css"; // Ensure your Tailwind directives are here
@@ -55,8 +56,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Added data-scroll-behavior="smooth" to prevent Next.js console warnings
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <body 
         className={`${inter.variable} ${montserrat.variable} flex min-h-screen flex-col bg-white font-sans text-gray-900 antialiased`}
       >

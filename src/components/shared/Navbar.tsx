@@ -1,3 +1,4 @@
+// src/components/Navbar.js
 import Link from "next/link";
 import { Menu, Phone } from "lucide-react";
 
