@@ -2,6 +2,8 @@ import { getQuotesAction } from "@/actions/getQuotes";
 import { Clock, CheckCircle, MapPin, Phone, User } from "lucide-react";
 import { StatusButton } from "./components/StatusButton";
 import { DeleteButton } from "./components/DeleteButton";
+// 1. Import the new form component
+import { AddProductForm } from "./components/AddProductForm"; 
 
 // Opt out of static caching so you always see fresh leads
 export const dynamic = 'force-dynamic';
@@ -16,8 +18,8 @@ export default async function AdminDashboard() {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Lead Management</h1>
-            <p className="mt-2 text-gray-600">Review and assign incoming service requests.</p>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="mt-2 text-gray-600">Manage your shop inventory and incoming service requests.</p>
           </div>
           <div className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 shadow-sm border border-gray-200">
             <span className="font-semibold text-[#0B1B3D]">{quotes.length}</span>
@@ -25,7 +27,16 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        {/* Data Table */}
+        {/* 2. Inject the Add Product Form */}
+        <div className="mb-12">
+          <AddProductForm />
+        </div>
+
+        {/* Data Table for Leads */}
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">Recent Leads</h2>
+        </div>
+        
         <div className="overflow-hidden rounded-xl bg-white shadow-sm border border-gray-200">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-gray-600">
@@ -42,7 +53,7 @@ export default async function AdminDashboard() {
               <tbody className="divide-y divide-gray-100">
                 {quotes.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                       No quotes received yet.
                     </td>
                   </tr>
@@ -81,7 +92,6 @@ export default async function AdminDashboard() {
                       </td>
 
                       {/* Status Badge */}
-                      {/* Status Badge - Replaced with interactive component */}
                       <td className="px-6 py-4">
                         <StatusButton id={quote.id} currentStatus={quote.status} />
                       </td>
