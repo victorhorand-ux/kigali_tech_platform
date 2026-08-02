@@ -4,6 +4,8 @@ import { Inter, Montserrat } from "next/font/google";
 import "@/app/globals.css"; // Ensure your Tailwind directives are here
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
+// Add the WhatsAppButton import
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 // Configure optimized Google Fonts with CSS variables
 const inter = Inter({ 
@@ -65,6 +67,8 @@ export default function RootLayout({
         <Navbar />
         <div className="flex-grow">{children}</div>
         <Footer />
+        {/* Render the floating button here */}
+        <WhatsAppButton />
       </body>
     </html>
   );
