@@ -64,7 +64,8 @@ export function Footer() {
         <div className="mt-16 flex flex-col items-center justify-between border-t border-gray-200 pt-8 md:flex-row">
           <p>&copy; {currentYear} Kigali Tech Platform. All rights reserved.</p>
           <div className="mt-4 flex gap-6 md:mt-0 font-medium">
-            <Link href="/privacy-policy" className="hover:text-[#0B1B3D]">Privacy Policy</Link>
+            {/* FIX: Changed href to /privacy to match the new route */}
+            <Link href="/privacy" className="hover:text-[#0B1B3D]">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-[#0B1B3D]">Terms of Service</Link>
           </div>
         </div>
